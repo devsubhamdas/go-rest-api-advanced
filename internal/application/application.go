@@ -11,6 +11,8 @@ import (
 	"time"
 
 	"github.com/Subham-Das-98/go-rest-api-advanced/internal/platform/config"
+	"github.com/Subham-Das-98/go-rest-api-advanced/internal/platform/storage"
+	// "gorm.io/gorm"
 )
 
 type Application struct {
@@ -19,6 +21,10 @@ type Application struct {
 }
 
 func New(cfg *config.Config) (*Application, error) {
+	_, err := storage.NewPostgres(cfg)
+	if err != nil {
+		return nil, err
+	}
 
 	mux := http.NewServeMux()
 
@@ -49,7 +55,7 @@ func (a *Application) Run() error {
 	signal.Notify(quit, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
 	go func() {
-		slog.Info("server started:", slog.String("port", a.server.Addr))
+		slog.Info("server started:", slog.String("port", a.cfg.Port), slog.String("address", a.server.Addr))
 		if err := a.server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			errCh <- err
 		}
