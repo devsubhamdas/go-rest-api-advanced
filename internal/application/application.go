@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
@@ -12,7 +13,6 @@ import (
 
 	"github.com/Subham-Das-98/go-rest-api-advanced/internal/platform/config"
 	"github.com/Subham-Das-98/go-rest-api-advanced/internal/platform/storage"
-	// "gorm.io/gorm"
 )
 
 type Application struct {
@@ -55,7 +55,11 @@ func (a *Application) Run() error {
 	signal.Notify(quit, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
 	go func() {
-		slog.Info("server started:", slog.String("port", a.cfg.Port), slog.String("address", a.server.Addr))
+		slog.Info(
+			"server started listening",
+			slog.String("port", a.cfg.Port),
+			slog.String("address", a.server.Addr),
+		)
 		if err := a.server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			errCh <- err
 		}
@@ -73,9 +77,9 @@ func (a *Application) Run() error {
 	defer cancel()
 
 	if err := a.server.Shutdown(ctx); err != nil {
-		return err
+		return fmt.Errorf("failed to shutdown server: %w", err)
 	}
 
-	slog.Info("shutdown complete")
+	slog.Info("shutdown completed")
 	return nil
 }
