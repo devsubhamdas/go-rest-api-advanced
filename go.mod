@@ -3,6 +3,7 @@ module github.com/Subham-Das-98/go-rest-api-advanced
 go 1.26.3
 
 require (
+	github.com/google/uuid v1.6.0
 	github.com/ilyakaznacheev/cleanenv v1.5.0
 	github.com/joho/godotenv v1.5.1
 	gorm.io/driver/postgres v1.6.2

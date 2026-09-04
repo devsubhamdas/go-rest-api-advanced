@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/Subham-Das-98/go-rest-api-advanced/internal/platform/config"
+	"github.com/Subham-Das-98/go-rest-api-advanced/internal/platform/middleware/header"
 	"github.com/Subham-Das-98/go-rest-api-advanced/internal/platform/storage"
 )
 
@@ -35,16 +36,20 @@ func New(cfg *config.Config) (*Application, error) {
 	logger := slog.New(logHandler)
 
 	mux := http.NewServeMux()
-
 	mux.HandleFunc("GET /api/healthz", func(w http.ResponseWriter, r *http.Request) {
+		// rID := header.GetRequestIDFromContext(r.Context())
+		// fmt.Printf("X-Request-ID: %s\n", rID)
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(`{"status": "ok"}`))
 	})
 
+	handler := header.SetRequestID(mux)
+
 	server := &http.Server{
 		Addr:         ":" + cfg.Port,
-		Handler:      mux,
+		Handler:      handler,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,
 		IdleTimeout:  60 * time.Second,
