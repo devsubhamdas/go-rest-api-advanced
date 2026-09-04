@@ -18,6 +18,7 @@ import (
 type Application struct {
 	cfg    *config.Config
 	server *http.Server
+	Logger *slog.Logger
 }
 
 func New(cfg *config.Config) (*Application, error) {
@@ -25,6 +26,13 @@ func New(cfg *config.Config) (*Application, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	logHandler := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		AddSource: true,
+		Level:     slog.LevelInfo,
+	})
+
+	logger := slog.New(logHandler)
 
 	mux := http.NewServeMux()
 
@@ -45,6 +53,7 @@ func New(cfg *config.Config) (*Application, error) {
 	return &Application{
 		cfg:    cfg,
 		server: server,
+		Logger: logger,
 	}, nil
 }
 
@@ -63,7 +72,6 @@ func (a *Application) Run() error {
 		if err := a.server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			errCh <- err
 		}
-
 	}()
 
 	select {
