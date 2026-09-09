@@ -96,10 +96,14 @@ func (a *Application) Run() error {
 		return fmt.Errorf("failed to shutdown server: \n%w", err)
 	}
 
-	if err := storage.CloseConnection(a.db); err != nil {
-		return err
-	}
-
 	slog.Info("server shutdown completed!!")
 	return nil
+}
+
+func (a *Application) Close() {
+	if err := storage.CloseConnection(a.db); err != nil {
+		a.Logger.Error("application.Close::", slog.String("error", err.Error()))
+	}
+
+	slog.Info("application closed!!")
 }
