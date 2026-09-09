@@ -14,16 +14,18 @@ import (
 	"github.com/Subham-Das-98/go-rest-api-advanced/internal/platform/config"
 	"github.com/Subham-Das-98/go-rest-api-advanced/internal/platform/middleware/header"
 	"github.com/Subham-Das-98/go-rest-api-advanced/internal/platform/storage"
+	"gorm.io/gorm"
 )
 
 type Application struct {
 	cfg    *config.Config
 	server *http.Server
+	db     *gorm.DB
 	Logger *slog.Logger
 }
 
 func New(cfg *config.Config) (*Application, error) {
-	_, err := storage.NewPostgres(cfg)
+	db, err := storage.NewPostgres(cfg)
 	if err != nil {
 		return nil, err
 	}
@@ -58,6 +60,7 @@ func New(cfg *config.Config) (*Application, error) {
 	return &Application{
 		cfg:    cfg,
 		server: server,
+		db:     db,
 		Logger: logger,
 	}, nil
 }
@@ -90,9 +93,13 @@ func (a *Application) Run() error {
 	defer cancel()
 
 	if err := a.server.Shutdown(ctx); err != nil {
-		return fmt.Errorf("failed to shutdown server: %w", err)
+		return fmt.Errorf("failed to shutdown server: \n%w", err)
 	}
 
-	slog.Info("shutdown completed")
+	if err := storage.CloseConnection(a.db); err != nil {
+		return err
+	}
+
+	slog.Info("server shutdown completed!!")
 	return nil
 }

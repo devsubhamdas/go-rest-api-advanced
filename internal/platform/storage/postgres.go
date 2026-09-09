@@ -29,10 +29,8 @@ func NewPostgres(cfg *config.Config) (*gorm.DB, error) {
 
 	sqlDB, err := db.DB()
 	if err != nil {
-		return nil, fmt.Errorf("failed to create sql.DB %w", err)
+		return nil, fmt.Errorf("NewPostgres:: failed to get sql.DB \n%w", err)
 	}
-
-	defer sqlDB.Close()
 
 	// Connection pool configuration
 	sqlDB.SetMaxOpenConns(3)
@@ -46,9 +44,23 @@ func NewPostgres(cfg *config.Config) (*gorm.DB, error) {
 
 	if err := sqlDB.PingContext(ctx); err != nil {
 		sqlDB.Close()
-		return nil, fmt.Errorf("failed to ping database: %w", err)
+		return nil, fmt.Errorf("PingContext:: failed to ping database: \n%w", err)
 	}
 
 	slog.Info("database connected successfully...")
 	return db, nil
+}
+
+func CloseConnection(db *gorm.DB) error {
+	sqlDB, err := db.DB()
+	if err != nil {
+		return fmt.Errorf("CloseConnection:: failed to get sql.DB: \n%w", err)
+	}
+
+	if err := sqlDB.Close(); err != nil {
+		return fmt.Errorf("CloseConnection:: failed to close database: \n%w", err)
+	}
+
+	slog.Info("database connection closed successfully...")
+	return nil
 }
