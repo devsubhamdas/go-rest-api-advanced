@@ -29,14 +29,14 @@ func NewPostgres(cfg *config.Config) (*gorm.DB, error) {
 
 	sqlDB, err := db.DB()
 	if err != nil {
-		return nil, fmt.Errorf("failed to get sql.DB %w", err)
+		return nil, fmt.Errorf("failed to create sql.DB %w", err)
 	}
 
 	defer sqlDB.Close()
 
 	// Connection pool configuration
-	sqlDB.SetMaxOpenConns(25)
-	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetMaxOpenConns(3)
+	sqlDB.SetMaxIdleConns(3)
 	sqlDB.SetConnMaxLifetime(30 * time.Minute)
 	sqlDB.SetConnMaxIdleTime(10 * time.Minute)
 
