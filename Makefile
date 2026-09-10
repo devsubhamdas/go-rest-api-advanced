@@ -9,6 +9,9 @@ build:
 start: build
 	./bin/api/main
 
+air:
+	air
+
 test:
 	go test ./...
 
