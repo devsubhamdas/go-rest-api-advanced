@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/Subham-Das-98/go-rest-api-advanced/internal/platform/config"
+	"github.com/Subham-Das-98/go-rest-api-advanced/internal/platform/middleware"
 	"github.com/Subham-Das-98/go-rest-api-advanced/internal/platform/middleware/header"
 	"github.com/Subham-Das-98/go-rest-api-advanced/internal/platform/storage"
 	"gorm.io/gorm"
@@ -47,7 +48,10 @@ func New(cfg *config.Config) (*Application, error) {
 		w.Write([]byte(`{"status": "ok"}`))
 	})
 
-	handler := header.SetRequestID(mux)
+	var handler http.Handler = mux
+	handler = header.SetRequestID(mux)
+	// handler = middleware.Logging(mux)
+	handler = middleware.Recover(mux)
 
 	server := &http.Server{
 		Addr:         ":" + cfg.Port,
