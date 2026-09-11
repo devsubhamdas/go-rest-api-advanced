@@ -48,10 +48,10 @@ func New(cfg *config.Config) (*Application, error) {
 		w.Write([]byte(`{"status": "ok"}`))
 	})
 
-	var handler http.Handler = mux
-	handler = header.SetRequestID(mux)
-	// handler = middleware.Logging(mux)
-	handler = middleware.Recover(mux)
+	handler := http.Handler(mux)
+	handler = middleware.Recover(handler)
+	handler = header.SetRequestID(handler)
+	// handler = middleware.Logging(handler)
 
 	server := &http.Server{
 		Addr:         ":" + cfg.Port,
