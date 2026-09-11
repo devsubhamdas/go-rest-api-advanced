@@ -6,4 +6,5 @@ var (
 	ErrEmailAlreadyExists = errors.New("email already exists")
 	ErrDuplicateKey       = errors.New("duplicate key error")
 	ErrNotFound           = errors.New("not found")
+	ErrUnknown            = errors.New("unknown error")
 )
