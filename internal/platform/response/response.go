@@ -112,7 +112,7 @@ type ErrorResponse struct {
 	Error   ErrorBody `json:"error"`
 }
 
-func WriteJson(w http.ResponseWriter, status int, message string, data any) error {
+func WriteJSON(w http.ResponseWriter, status int, message string, data any) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
 
