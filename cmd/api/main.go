@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
-	"github.com/Subham-Das-98/go-rest-api-advanced/internal/application"
-	"github.com/Subham-Das-98/go-rest-api-advanced/internal/platform/config"
+	"github.com/devsubhamdas/go-rest-api-advanced/internal/application"
+	"github.com/devsubhamdas/go-rest-api-advanced/internal/platform/config"
 )
 
 func main() {

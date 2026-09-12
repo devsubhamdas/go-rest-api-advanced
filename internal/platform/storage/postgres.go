@@ -6,7 +6,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/Subham-Das-98/go-rest-api-advanced/internal/platform/config"
+	"github.com/devsubhamdas/go-rest-api-advanced/internal/platform/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )

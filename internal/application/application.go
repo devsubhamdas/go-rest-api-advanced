@@ -11,10 +11,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Subham-Das-98/go-rest-api-advanced/internal/platform/config"
-	"github.com/Subham-Das-98/go-rest-api-advanced/internal/platform/middleware"
-	"github.com/Subham-Das-98/go-rest-api-advanced/internal/platform/middleware/header"
-	"github.com/Subham-Das-98/go-rest-api-advanced/internal/platform/storage"
+	"github.com/devsubhamdas/go-rest-api-advanced/internal/platform/config"
+	"github.com/devsubhamdas/go-rest-api-advanced/internal/platform/middleware"
+	"github.com/devsubhamdas/go-rest-api-advanced/internal/platform/middleware/header"
+	"github.com/devsubhamdas/go-rest-api-advanced/internal/platform/storage"
 	"gorm.io/gorm"
 )
 
