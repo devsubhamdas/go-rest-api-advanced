@@ -97,13 +97,13 @@ var errCodeHTTPStatusMap = map[Code]int{
 
 type JSONResponse struct {
 	Success bool   `json:"success"`
-	Message string `json:"message"`
+	Message string `json:"message,omitempty"`
 	Data    any    `json:"data,omitempty"`
 }
 
 type ErrorBody struct {
 	Code    Code   `json:"code"`
-	Message string `json:"message"`
+	Message string `json:"message,omitempty"`
 	Details any    `json:"details,omitempty"`
 }
 
