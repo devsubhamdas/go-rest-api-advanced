@@ -15,6 +15,7 @@ import (
 	"github.com/devsubhamdas/go-rest-api-advanced/internal/platform/middleware"
 	"github.com/devsubhamdas/go-rest-api-advanced/internal/platform/middleware/header"
 	"github.com/devsubhamdas/go-rest-api-advanced/internal/platform/storage"
+	"github.com/devsubhamdas/go-rest-api-advanced/internal/user"
 	"gorm.io/gorm"
 )
 
@@ -48,6 +49,13 @@ func New(cfg *config.Config) (*Application, error) {
 		w.Write([]byte(`{"status": "ok"}`))
 	})
 
+	// User module
+	userRepo := user.NewRepository(db)
+	userSvc := user.NewService(userRepo)
+	userHandler := user.NewHandler(userSvc)
+	user.RegisterRoutes(mux, userHandler)
+
+	// Middleware setup
 	handler := http.Handler(mux)
 	handler = middleware.Recover(handler)
 	handler = header.SetRequestID(handler)
