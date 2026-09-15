@@ -27,7 +27,7 @@ func MustLoad() *Config {
 	var cfg Config
 
 	if err := cleanenv.ReadEnv(&cfg); err != nil {
-		log.Fatalf("failed to load .env file %v", err)
+		log.Fatalf("failed to read env file %v", err)
 	}
 
 	return &cfg
