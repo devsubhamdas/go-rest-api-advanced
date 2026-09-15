@@ -51,7 +51,7 @@ const (
 	CodeGatewayTimeout     Code = "gateway_timeout"
 )
 
-var errCodeHTTPStatusMap = map[Code]int{
+var StatusByCode = map[Code]int{
 	// 400 - Client/Validation errors
 	CodeBadRequest:      http.StatusBadRequest,
 	CodeValidationError: http.StatusBadRequest,
@@ -166,7 +166,7 @@ func WriteErrorWithDetails(w http.ResponseWriter, status int, code Code, message
 
 // WriteErrorFromCode writes an error response, deriving the HTTP status from code's default mapping.
 func WriteErrorFromCode(w http.ResponseWriter, code Code, message string) error {
-	status, ok := errCodeHTTPStatusMap[code]
+	status, ok := StatusByCode[code]
 	if !ok {
 		status = http.StatusInternalServerError
 	}
@@ -176,7 +176,7 @@ func WriteErrorFromCode(w http.ResponseWriter, code Code, message string) error 
 
 // WriteErrorFromCodeWithDetails implements WriteErrorFromCode function with add-on Details field
 func WriteErrorFromCodeWithDetails(w http.ResponseWriter, code Code, message string, details any) error {
-	status, ok := errCodeHTTPStatusMap[code]
+	status, ok := StatusByCode[code]
 	if !ok {
 		status = http.StatusInternalServerError
 	}
