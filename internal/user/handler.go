@@ -3,29 +3,42 @@ package user
 import (
 	"encoding/json"
 	"errors"
+	"log/slog"
 	"net/http"
 
 	"github.com/devsubhamdas/go-rest-api-advanced/internal/platform/errorsx"
+	"github.com/devsubhamdas/go-rest-api-advanced/internal/platform/middleware/header"
 	"github.com/devsubhamdas/go-rest-api-advanced/internal/platform/response"
 	"github.com/devsubhamdas/go-rest-api-advanced/internal/user/dto"
 )
 
 type Handler struct {
-	svc *Service
+	svc    *Service
+	logger *slog.Logger
 }
 
-func NewHandler(s *Service) *Handler {
+func NewHandler(s *Service, logger *slog.Logger) *Handler {
 	return &Handler{
-		svc: s,
+		svc:    s,
+		logger: logger,
 	}
 }
 
 func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
+	rID := header.GetRequestIDFromContext(r.Context())
+
 	var req dto.CreateUserInput
 
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
+		h.logger.Error(
+			"CreateUser::\n",
+			slog.String("X-Request-ID", rID),
+			slog.String("error", err.Error()),
+		)
+
 		var typeErr *json.UnmarshalTypeError
+
 		if errors.Is(err, typeErr) && errors.As(err, &typeErr) {
 			_ = response.WriteErrorFromCodeWithDetails(
 				w,
@@ -50,7 +63,14 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	user, err := h.svc.Create(r.Context(), &req)
 
 	if err != nil {
+		h.logger.Error(
+			"CreateUser::\n",
+			slog.String("X-Request-ID", rID),
+			slog.String("error", err.Error()),
+		)
+
 		var vErr *errorsx.ValidationError
+
 		if errors.Is(err, vErr) && errors.As(err, &vErr) {
 			_ = response.WriteErrorFromCodeWithDetails(
 				w,
@@ -92,6 +112,8 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
+	rID := header.GetRequestIDFromContext(r.Context())
+
 	id := r.PathValue("id")
 	if id == "" {
 		_ = response.WriteErrorFromCode(w, response.CodeBadRequest, "id path value is missing")
@@ -101,7 +123,14 @@ func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
+		h.logger.Error(
+			"UpdateUser::\n",
+			slog.String("X-Request-ID", rID),
+			slog.String("error", err.Error()),
+		)
+
 		var typeErr *json.UnmarshalTypeError
+
 		if errors.Is(err, typeErr) && errors.As(err, &typeErr) {
 			response.WriteErrorFromCodeWithDetails(
 				w,
@@ -126,7 +155,14 @@ func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	user, err := h.svc.Update(r.Context(), id, &req)
 
 	if err != nil {
+		h.logger.Error(
+			"UpdateUser::\n",
+			slog.String("X-Request-ID", rID),
+			slog.String("error", err.Error()),
+		)
+
 		var vErr *errorsx.ValidationError
+
 		if errors.Is(err, vErr) && errors.As(err, &vErr) {
 			_ = response.WriteErrorFromCodeWithDetails(
 				w,
@@ -177,6 +213,8 @@ func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
+	rID := header.GetRequestIDFromContext(r.Context())
+
 	id := r.PathValue("id")
 	if id == "" {
 		_ = response.WriteErrorFromCode(w, response.CodeBadRequest, "id path value is missing")
@@ -184,6 +222,12 @@ func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 	err := h.svc.Delete(r.Context(), id)
 	if err != nil {
+		h.logger.Error(
+			"DeleteUser::\n",
+			slog.String("X-Request-ID", rID),
+			slog.String("error", err.Error()),
+		)
+
 		if errors.Is(err, errorsx.ErrInvalidID) {
 			_ = response.WriteErrorFromCode(
 				w,
@@ -205,6 +249,8 @@ func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetUserByID(w http.ResponseWriter, r *http.Request) {
+	rID := header.GetRequestIDFromContext(r.Context())
+
 	id := r.PathValue("id")
 	if id == "" {
 		_ = response.WriteErrorFromCode(w, response.CodeBadRequest, "id path value is missing")
@@ -213,6 +259,12 @@ func (h *Handler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 	user, err := h.svc.GetByID(r.Context(), id)
 
 	if err != nil {
+		h.logger.Error(
+			"GetUserByID::\n",
+			slog.String("X-Request-ID", rID),
+			slog.String("error", err.Error()),
+		)
+
 		if errors.Is(err, errorsx.ErrInvalidID) {
 			_ = response.WriteErrorFromCode(
 				w,
@@ -234,9 +286,17 @@ func (h *Handler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetUsers(w http.ResponseWriter, r *http.Request) {
+	rID := header.GetRequestIDFromContext(r.Context())
+
 	users, err := h.svc.GetMany(r.Context())
 
 	if err != nil {
+		h.logger.Error(
+			"GetUsers::\n",
+			slog.String("X-Request-ID", rID),
+			slog.String("error", err.Error()),
+		)
+
 		_ = response.WriteErrorFromCode(
 			w,
 			response.CodeInternalServerError,

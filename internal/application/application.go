@@ -52,7 +52,7 @@ func New(cfg *config.Config) (*Application, error) {
 	// User module
 	userRepo := user.NewRepository(db)
 	userSvc := user.NewService(userRepo)
-	userHandler := user.NewHandler(userSvc)
+	userHandler := user.NewHandler(userSvc, logger)
 	user.RegisterRoutes(mux, userHandler)
 
 	// Middleware setup
