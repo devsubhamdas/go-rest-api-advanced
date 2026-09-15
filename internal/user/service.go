@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/devsubhamdas/go-rest-api-advanced/internal/platform/errorsx"
 	"github.com/devsubhamdas/go-rest-api-advanced/internal/platform/hash"
@@ -30,7 +31,10 @@ func NewService(r Repository) *Service {
 }
 
 func (s *Service) Create(ctx context.Context, input *dto.CreateUserInput) (*dto.UserResponseData, error) {
-	// TODO: validate input
+	// Validate input
+	if err := input.Validate(); err != nil {
+		return nil, err
+	}
 
 	// Hash password
 	hashPwd, err := hash.GenerateFromPassword(input.Password)
@@ -39,8 +43,8 @@ func (s *Service) Create(ctx context.Context, input *dto.CreateUserInput) (*dto.
 	}
 
 	payload := &User{
-		Name:     input.Name,
-		Email:    input.Email,
+		Name:     strings.TrimSpace(input.Name),
+		Email:    strings.TrimSpace(input.Email),
 		Password: hashPwd,
 	}
 
@@ -59,17 +63,20 @@ func (s *Service) Create(ctx context.Context, input *dto.CreateUserInput) (*dto.
 }
 
 func (s *Service) Update(ctx context.Context, id string, input *dto.UpdateUserInput) (*dto.UserResponseData, error) {
-	// TODO: validate input
-
 	pID, err := uuid.Parse(id)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %w", errorsx.ErrInvalidID, err)
 	}
 
+	// Validate input
+	if err := input.Validate(); err != nil {
+		return nil, err
+	}
+
 	payload := &User{
 		ID:    pID,
-		Name:  input.Name,
-		Email: input.Email,
+		Name:  strings.TrimSpace(input.Name),
+		Email: strings.TrimSpace(input.Email),
 	}
 
 	u, err := s.repo.Update(ctx, payload)

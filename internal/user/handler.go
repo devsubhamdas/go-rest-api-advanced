@@ -25,6 +25,20 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
+		var typeErr *json.UnmarshalTypeError
+		if errors.Is(err, typeErr) && errors.As(err, &typeErr) {
+			_ = response.WriteErrorFromCodeWithDetails(
+				w,
+				response.CodeUnprocessableEntity,
+				"failed to decode json payload",
+				errorsx.ValidationErrorDetails{
+					Field:   typeErr.Field,
+					Message: "invalid type of value",
+				},
+			)
+			return
+		}
+
 		_ = response.WriteErrorFromCode(
 			w,
 			response.CodeUnprocessableEntity,
@@ -36,6 +50,17 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	user, err := h.svc.Create(r.Context(), &req)
 
 	if err != nil {
+		var vErr *errorsx.ValidationError
+		if errors.Is(err, vErr) && errors.As(err, &vErr) {
+			_ = response.WriteErrorFromCodeWithDetails(
+				w,
+				response.CodeUnprocessableEntity,
+				vErr.Error(),
+				vErr.Details,
+			)
+			return
+		}
+
 		if errors.Is(err, errorsx.ErrEmailAlreadyExists) {
 			_ = response.WriteErrorFromCode(
 				w,
@@ -68,11 +93,28 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
+	if id == "" {
+		_ = response.WriteErrorFromCode(w, response.CodeBadRequest, "id path value is missing")
+	}
 
 	var req dto.UpdateUserInput
 
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
+		var typeErr *json.UnmarshalTypeError
+		if errors.Is(err, typeErr) && errors.As(err, &typeErr) {
+			response.WriteErrorFromCodeWithDetails(
+				w,
+				response.CodeUnprocessableEntity,
+				"failed to decode json",
+				errorsx.ValidationErrorDetails{
+					Field:   typeErr.Field,
+					Message: "invalid type of value",
+				},
+			)
+			return
+		}
+
 		_ = response.WriteErrorFromCode(
 			w,
 			response.CodeUnprocessableEntity,
@@ -84,6 +126,17 @@ func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	user, err := h.svc.Update(r.Context(), id, &req)
 
 	if err != nil {
+		var vErr *errorsx.ValidationError
+		if errors.Is(err, vErr) && errors.As(err, &vErr) {
+			_ = response.WriteErrorFromCodeWithDetails(
+				w,
+				response.CodeUnprocessableEntity,
+				vErr.Error(),
+				vErr.Details,
+			)
+			return
+		}
+
 		if errors.Is(err, errorsx.ErrInvalidID) {
 			_ = response.WriteErrorFromCode(
 				w,
@@ -125,6 +178,9 @@ func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
+	if id == "" {
+		_ = response.WriteErrorFromCode(w, response.CodeBadRequest, "id path value is missing")
+	}
 
 	err := h.svc.Delete(r.Context(), id)
 	if err != nil {
@@ -150,6 +206,9 @@ func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
+	if id == "" {
+		_ = response.WriteErrorFromCode(w, response.CodeBadRequest, "id path value is missing")
+	}
 
 	user, err := h.svc.GetByID(r.Context(), id)
 
@@ -175,7 +234,6 @@ func (h *Handler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetUsers(w http.ResponseWriter, r *http.Request) {
-
 	users, err := h.svc.GetMany(r.Context())
 
 	if err != nil {
