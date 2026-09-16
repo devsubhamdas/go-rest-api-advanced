@@ -117,6 +117,7 @@ func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	if id == "" {
 		_ = response.WriteErrorFromCode(w, response.CodeBadRequest, "id path value is missing")
+		return
 	}
 
 	var req dto.UpdateUserInput
@@ -218,6 +219,7 @@ func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	if id == "" {
 		_ = response.WriteErrorFromCode(w, response.CodeBadRequest, "id path value is missing")
+		return
 	}
 
 	err := h.svc.Delete(r.Context(), id)
@@ -254,6 +256,7 @@ func (h *Handler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	if id == "" {
 		_ = response.WriteErrorFromCode(w, response.CodeBadRequest, "id path value is missing")
+		return
 	}
 
 	user, err := h.svc.GetByID(r.Context(), id)
