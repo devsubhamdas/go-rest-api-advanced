@@ -29,6 +29,8 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	var req dto.CreateUserInput
 
+	defer r.Body.Close()
+
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		h.logger.Error(
@@ -121,6 +123,8 @@ func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var req dto.UpdateUserInput
+
+	defer r.Body.Close()
 
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
