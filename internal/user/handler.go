@@ -39,9 +39,7 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 			slog.String("error", err.Error()),
 		)
 
-		var typeErr *json.UnmarshalTypeError
-
-		if errors.Is(err, typeErr) && errors.As(err, &typeErr) {
+		if typeErr, ok := errors.AsType[*json.UnmarshalTypeError](err); ok {
 			_ = response.WriteErrorFromCodeWithDetails(
 				w,
 				response.CodeUnprocessableEntity,
@@ -71,15 +69,14 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 			slog.String("error", err.Error()),
 		)
 
-		var vErr *errorsx.ValidationError
-
-		if errors.Is(err, vErr) && errors.As(err, &vErr) {
+		if vErr, ok := errors.AsType[*errorsx.ValidationError](err); ok {
 			_ = response.WriteErrorFromCodeWithDetails(
 				w,
 				vErr.Code,
 				vErr.Error(),
 				vErr.Details,
 			)
+
 			return
 		}
 
@@ -134,9 +131,7 @@ func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 			slog.String("error", err.Error()),
 		)
 
-		var typeErr *json.UnmarshalTypeError
-
-		if errors.Is(err, typeErr) && errors.As(err, &typeErr) {
+		if typeErr, ok := errors.AsType[*json.UnmarshalTypeError](err); ok {
 			response.WriteErrorFromCodeWithDetails(
 				w,
 				response.CodeUnprocessableEntity,
@@ -166,9 +161,7 @@ func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 			slog.String("error", err.Error()),
 		)
 
-		var vErr *errorsx.ValidationError
-
-		if errors.Is(err, vErr) && errors.As(err, &vErr) {
+		if vErr, ok := errors.AsType[*errorsx.ValidationError](err); ok {
 			_ = response.WriteErrorFromCodeWithDetails(
 				w,
 				vErr.Code,
@@ -277,6 +270,15 @@ func (h *Handler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 				w,
 				response.CodeBadRequest,
 				errorsx.ErrInvalidID.Error(),
+			)
+			return
+		}
+
+		if errors.Is(err, errorsx.ErrNotFound) {
+			_ = response.WriteErrorFromCode(
+				w,
+				response.CodeNotFoundError,
+				errorsx.ErrNotFound.Error(),
 			)
 			return
 		}

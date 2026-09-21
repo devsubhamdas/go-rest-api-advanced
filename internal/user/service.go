@@ -88,7 +88,6 @@ func (s *Service) Update(ctx context.Context, id string, input *dto.UpdateUserIn
 		ID:        u.ID,
 		Name:      u.Name,
 		Email:     u.Email,
-		CreatedAt: u.CreatedAt,
 		UpdatedAt: u.UpdatedAt,
 	}, nil
 }

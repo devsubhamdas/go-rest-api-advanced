@@ -27,8 +27,8 @@ type UserResponseData struct {
 	Name  string    `json:"name,omitempty"`
 	Email string    `json:"email,omitempty"`
 
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	CreatedAt time.Time `json:"created_at,omitzero"`
+	UpdatedAt time.Time `json:"updated_at,omitzero"`
 }
 
 // CreateUserInput Validation
@@ -69,15 +69,18 @@ func (i *CreateUserInput) Validate() error {
 	// Validate Name
 	if !isValidName(i.Name) {
 		vErrDetails = append(vErrDetails, errorsx.ValidationErrorDetails{
-			Field:   "name",
-			Message: fmt.Sprintf("%s: only alphabets and '.' allowed", errorsx.ErrInvalidName.Error()),
+			Field: "name",
+			Message: fmt.Sprintf(
+				"%s: only alphabets with no trailing spaces allowed and no numbers or special characters except '.'",
+				errorsx.ErrInvalidName.Error(),
+			),
 		})
 	}
 
 	// Validate Email
 	if !isValidEmail(i.Email) {
 		vErrDetails = append(vErrDetails, errorsx.ValidationErrorDetails{
-			Field:   "name",
+			Field:   "email",
 			Message: errorsx.ErrInvalidEmail.Error(),
 		})
 	}
@@ -86,7 +89,8 @@ func (i *CreateUserInput) Validate() error {
 	minPwdLen := 4
 	if len(i.Password) < minPwdLen {
 		vErrDetails = append(vErrDetails, errorsx.ValidationErrorDetails{
-			Field: fmt.Sprintf("password length must be greater than %d", minPwdLen),
+			Field:   "password",
+			Message: fmt.Sprintf("password length must be greater than %d", minPwdLen),
 		})
 	}
 
@@ -128,15 +132,18 @@ func (i *UpdateUserInput) Validate() error {
 	// Validate Name
 	if !isValidName(i.Name) {
 		vErrDetails = append(vErrDetails, errorsx.ValidationErrorDetails{
-			Field:   "name",
-			Message: fmt.Sprintf("%s: only alphabets and '.' allowed", errorsx.ErrInvalidName.Error()),
+			Field: "name",
+			Message: fmt.Sprintf(
+				"%s: only alphabets with no trailing spaces allowed and no numbers or special characters except '.'",
+				errorsx.ErrInvalidName.Error(),
+			),
 		})
 	}
 
 	// Validate Email
 	if !isValidEmail(i.Email) {
 		vErrDetails = append(vErrDetails, errorsx.ValidationErrorDetails{
-			Field:   "name",
+			Field:   "email",
 			Message: errorsx.ErrInvalidEmail.Error(),
 		})
 	}
@@ -152,7 +159,7 @@ func (i *UpdateUserInput) Validate() error {
 }
 
 func isValidName(name string) bool {
-	nameRegex := regexp.MustCompile(`^[a-zA-Z]+(\.[a-zA-Z]+)*$`)
+	nameRegex := regexp.MustCompile(`^[a-zA-Z]+\.?(\s+[a-zA-Z]+\.?)*$`)
 	return nameRegex.MatchString(name)
 }
 
