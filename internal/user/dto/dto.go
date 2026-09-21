@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/devsubhamdas/go-rest-api-advanced/internal/platform/errorsx"
+	"github.com/devsubhamdas/go-rest-api-advanced/internal/platform/response"
 	"github.com/google/uuid"
 )
 
@@ -91,6 +92,7 @@ func (i *CreateUserInput) Validate() error {
 
 	if len(vErrDetails) > 0 {
 		return &errorsx.ValidationError{
+			Code:    response.CodeUnprocessableEntity,
 			Details: vErrDetails,
 		}
 	}
@@ -141,6 +143,7 @@ func (i *UpdateUserInput) Validate() error {
 
 	if len(vErrDetails) > 0 {
 		return &errorsx.ValidationError{
+			Code:    response.CodeUnprocessableEntity,
 			Details: vErrDetails,
 		}
 	}

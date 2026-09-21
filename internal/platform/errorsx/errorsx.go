@@ -2,6 +2,8 @@ package errorsx
 
 import (
 	"errors"
+
+	"github.com/devsubhamdas/go-rest-api-advanced/internal/platform/response"
 )
 
 var (
@@ -21,6 +23,7 @@ type ValidationErrorDetails struct {
 }
 
 type ValidationError struct {
+	Code    response.Code
 	Message string                   `json:"message,omitempty"`
 	Details []ValidationErrorDetails `json:"details,omitempty"`
 }

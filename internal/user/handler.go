@@ -76,7 +76,7 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		if errors.Is(err, vErr) && errors.As(err, &vErr) {
 			_ = response.WriteErrorFromCodeWithDetails(
 				w,
-				response.CodeUnprocessableEntity,
+				vErr.Code,
 				vErr.Error(),
 				vErr.Details,
 			)
@@ -171,7 +171,7 @@ func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		if errors.Is(err, vErr) && errors.As(err, &vErr) {
 			_ = response.WriteErrorFromCodeWithDetails(
 				w,
-				response.CodeUnprocessableEntity,
+				vErr.Code,
 				vErr.Error(),
 				vErr.Details,
 			)
