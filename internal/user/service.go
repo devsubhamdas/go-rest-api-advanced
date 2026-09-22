@@ -44,7 +44,7 @@ func (s *Service) Create(ctx context.Context, input *dto.CreateUserInput) (*dto.
 
 	payload := &User{
 		Name:     strings.TrimSpace(input.Name),
-		Email:    strings.TrimSpace(input.Email),
+		Email:    strings.ToLower(strings.TrimSpace(input.Email)),
 		Password: hashPwd,
 	}
 
@@ -76,7 +76,7 @@ func (s *Service) Update(ctx context.Context, id string, input *dto.UpdateUserIn
 	payload := &User{
 		ID:    pID,
 		Name:  strings.TrimSpace(input.Name),
-		Email: strings.TrimSpace(input.Email),
+		Email: strings.ToLower(strings.TrimSpace(input.Email)),
 	}
 
 	u, err := s.repo.Update(ctx, payload)
