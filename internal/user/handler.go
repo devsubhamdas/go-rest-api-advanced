@@ -134,7 +134,7 @@ func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		)
 
 		if typeErr, ok := errors.AsType[*json.UnmarshalTypeError](err); ok {
-			response.WriteErrorFromCodeWithDetails(
+			_ = response.WriteErrorFromCodeWithDetails(
 				w,
 				response.CodeUnprocessableEntity,
 				"failed to decode json",
@@ -146,6 +146,14 @@ func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 				},
 			)
 			return
+		}
+
+		if errors.Is(err, errorsx.ErrNotFound) {
+			_ = response.WriteErrorFromCode(
+				w,
+				response.CodeNotFoundError,
+				errorsx.ErrNotFound.Error(),
+			)
 		}
 
 		_ = response.WriteErrorFromCode(

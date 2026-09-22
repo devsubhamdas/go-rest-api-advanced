@@ -42,7 +42,9 @@ func (r *repository) Create(ctx context.Context, u *User) (*User, error) {
 }
 
 func (r *repository) Update(ctx context.Context, u *User) (*User, error) {
-	if err := r.db.WithContext(ctx).Select("name", "email").Save(u).Error; err != nil {
+	tx := r.db.WithContext(ctx).Select("name", "email").Save(u)
+
+	if err := tx.Error; err != nil {
 		var pgErr *pgconn.PgError
 
 		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
@@ -56,6 +58,10 @@ func (r *repository) Update(ctx context.Context, u *User) (*User, error) {
 		}
 
 		return nil, err
+	}
+
+	if tx.RowsAffected == 0 {
+		return nil, errorsx.ErrNotFound
 	}
 
 	return u, nil
