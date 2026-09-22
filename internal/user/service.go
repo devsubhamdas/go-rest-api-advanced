@@ -31,6 +31,10 @@ func NewService(r Repository) *Service {
 }
 
 func (s *Service) Create(ctx context.Context, input *dto.CreateUserInput) (*dto.UserResponseData, error) {
+	// Sanitize input
+	input.Name = strings.TrimSpace(input.Name)
+	input.Email = strings.ToLower(strings.TrimSpace(input.Email))
+
 	// Validate input
 	if err := input.Validate(); err != nil {
 		return nil, err
@@ -43,8 +47,8 @@ func (s *Service) Create(ctx context.Context, input *dto.CreateUserInput) (*dto.
 	}
 
 	payload := &User{
-		Name:     strings.TrimSpace(input.Name),
-		Email:    strings.ToLower(strings.TrimSpace(input.Email)),
+		Name:     input.Name,
+		Email:    input.Email,
 		Password: hashPwd,
 	}
 
@@ -68,6 +72,10 @@ func (s *Service) Update(ctx context.Context, id string, input *dto.UpdateUserIn
 		return nil, fmt.Errorf("%w: %w", errorsx.ErrInvalidID, err)
 	}
 
+	// Sanitize input
+	input.Name = strings.TrimSpace(input.Name)
+	input.Email = strings.ToLower(strings.TrimSpace(input.Email))
+
 	// Validate input
 	if err := input.Validate(); err != nil {
 		return nil, err
@@ -75,8 +83,8 @@ func (s *Service) Update(ctx context.Context, id string, input *dto.UpdateUserIn
 
 	payload := &User{
 		ID:    pID,
-		Name:  strings.TrimSpace(input.Name),
-		Email: strings.ToLower(strings.TrimSpace(input.Email)),
+		Name:  input.Name,
+		Email: input.Email,
 	}
 
 	u, err := s.repo.Update(ctx, payload)
