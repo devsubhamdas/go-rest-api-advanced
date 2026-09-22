@@ -154,6 +154,7 @@ func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 				response.CodeNotFoundError,
 				errorsx.ErrNotFound.Error(),
 			)
+			return
 		}
 
 		_ = response.WriteErrorFromCode(
