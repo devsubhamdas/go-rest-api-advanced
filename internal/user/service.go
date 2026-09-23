@@ -20,17 +20,17 @@ type Repository interface {
 	GetMany(context.Context) ([]User, error)
 }
 
-type Service struct {
+type service struct {
 	repo Repository
 }
 
-func NewService(r Repository) *Service {
-	return &Service{
+func NewService(r Repository) Service {
+	return &service{
 		repo: r,
 	}
 }
 
-func (s *Service) Create(ctx context.Context, input *dto.CreateUserInput) (*dto.UserResponseData, error) {
+func (s *service) Create(ctx context.Context, input *dto.CreateUserInput) (*dto.UserResponseData, error) {
 	// Sanitize input
 	input.Name = strings.TrimSpace(input.Name)
 	input.Email = strings.ToLower(strings.TrimSpace(input.Email))
@@ -66,7 +66,7 @@ func (s *Service) Create(ctx context.Context, input *dto.CreateUserInput) (*dto.
 	}, nil
 }
 
-func (s *Service) Update(ctx context.Context, id string, input *dto.UpdateUserInput) (*dto.UserResponseData, error) {
+func (s *service) Update(ctx context.Context, id string, input *dto.UpdateUserInput) (*dto.UserResponseData, error) {
 	pID, err := uuid.Parse(id)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %w", errorsx.ErrInvalidID, err)
@@ -100,7 +100,7 @@ func (s *Service) Update(ctx context.Context, id string, input *dto.UpdateUserIn
 	}, nil
 }
 
-func (s *Service) Delete(ctx context.Context, id string) error {
+func (s *service) Delete(ctx context.Context, id string) error {
 	// TODO: validate input
 
 	pID, err := uuid.Parse(id)
@@ -110,7 +110,7 @@ func (s *Service) Delete(ctx context.Context, id string) error {
 	return s.repo.Delete(ctx, pID)
 }
 
-func (s *Service) GetByID(ctx context.Context, id string) (*dto.UserResponseData, error) {
+func (s *service) GetByID(ctx context.Context, id string) (*dto.UserResponseData, error) {
 	// TODO: validate input
 
 	pID, err := uuid.Parse(id)
@@ -132,7 +132,7 @@ func (s *Service) GetByID(ctx context.Context, id string) (*dto.UserResponseData
 	}, nil
 }
 
-func (s *Service) GetByEmail(ctx context.Context, email string) (*dto.UserResponseData, error) {
+func (s *service) GetByEmail(ctx context.Context, email string) (*dto.UserResponseData, error) {
 	// TODO: validate input
 
 	u, err := s.repo.GetByEmail(ctx, email)
@@ -149,7 +149,7 @@ func (s *Service) GetByEmail(ctx context.Context, email string) (*dto.UserRespon
 	}, nil
 }
 
-func (s *Service) GetMany(ctx context.Context) ([]dto.UserResponseData, error) {
+func (s *service) GetMany(ctx context.Context) ([]dto.UserResponseData, error) {
 	users, err := s.repo.GetMany(ctx)
 	if err != nil {
 		return nil, err

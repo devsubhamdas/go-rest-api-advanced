@@ -1,6 +1,7 @@
 package user
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"log/slog"
@@ -12,12 +13,21 @@ import (
 	"github.com/devsubhamdas/go-rest-api-advanced/internal/user/dto"
 )
 
+type Service interface {
+	Create(ctx context.Context, input *dto.CreateUserInput) (*dto.UserResponseData, error)
+	Update(ctx context.Context, id string, input *dto.UpdateUserInput) (*dto.UserResponseData, error)
+	Delete(ctx context.Context, id string) error
+	GetByID(ctx context.Context, id string) (*dto.UserResponseData, error)
+	GetByEmail(ctx context.Context, email string) (*dto.UserResponseData, error)
+	GetMany(ctx context.Context) ([]dto.UserResponseData, error)
+}
+
 type Handler struct {
-	svc    *Service
+	svc    Service
 	logger *slog.Logger
 }
 
-func NewHandler(s *Service, logger *slog.Logger) *Handler {
+func NewHandler(s Service, logger *slog.Logger) *Handler {
 	return &Handler{
 		svc:    s,
 		logger: logger,
