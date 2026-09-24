@@ -304,12 +304,6 @@ go test ./internal/user -v -run "^TestService"
 go test ./internal/user -v -run "^TestHandler"
 ```
 
-Run a specific test function:
-
-```bash
-go test ./internal/user/... -run TestCreateUser -v
-```
-
 The project uses:
 
 - Go's standard `testing` package
