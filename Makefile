@@ -3,7 +3,7 @@ export
 
 .PHONY: run build start test vet migrate migrate-down lint fmt migrate-create migrate-up migrate-down migrate-status migrate-reset
 
-## DB CONFIG
+## DB CONFIG FOR GOOSE OPERATIONS
 DB_DRIVER=postgres
 MIGRATIONS_DIR=migrations
 DB_STRING=host=${DB_HOST} user=${DB_USER} password=${DB_PASSWORD} dbname=${DB_NAME} sslmode=${DB_SSLMODE} port=${DB_PORT}
