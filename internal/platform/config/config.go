@@ -11,12 +11,12 @@ type Config struct {
 	Env  string `env:"ENV" env-required:"true"`
 	Port string `env:"PORT" env-required:"true"`
 
-	DBHost      string `env:"DB_HOST" env-required:"true"`
-	DB_PORT     string `env:"DB_PORT" env-required:"true"`
-	DB_USER     string `env:"DB_USER" env-required:"true"`
-	DB_PASSWORD string `env:"DB_PASSWORD" env-required:"true"`
-	DB_NAME     string `env:"DB_NAME" env-required:"true"`
-	DB_SSLMODE  string `env:"DB_SSLMODE" env-required:"true"`
+	DBHost     string `env:"DB_HOST" env-required:"true"`
+	DBPort     string `env:"DB_PORT" env-required:"true"`
+	DBUser     string `env:"DB_USER" env-required:"true"`
+	DBPassword string `env:"DB_PASSWORD" env-required:"true"`
+	DBName     string `env:"DB_NAME" env-required:"true"`
+	DBSSLMode  string `env:"DB_SSLMODE" env-required:"true"`
 }
 
 func MustLoad() *Config {
