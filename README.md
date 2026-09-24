@@ -294,7 +294,13 @@ Run a specific test unit:
 
 ```bash
 go test ./internal/user -v -run "^TestRepository"
+```
+
+```bash
 go test ./internal/user -v -run "^TestService"
+```
+
+```bash
 go test ./internal/user -v -run "^TestHandler"
 ```
 
