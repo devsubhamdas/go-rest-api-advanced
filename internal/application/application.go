@@ -62,6 +62,7 @@ func New(cfg *config.Config) (*Application, error) {
 
 	// Middleware setup
 	handler := http.Handler(mux)
+	handler = middleware.SecurityHeaders(handler)
 	handler = rateLimiter.Limit(handler)
 	handler = middleware.CORS(corsCfg)(handler)
 	handler = middleware.Recover(handler)
