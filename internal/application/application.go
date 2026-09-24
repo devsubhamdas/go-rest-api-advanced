@@ -52,8 +52,12 @@ func New(cfg *config.Config) (*Application, error) {
 	userHandler := user.NewHandler(userSvc, logger)
 	user.RegisterRoutes(mux, userHandler)
 
+	// cors config
+	corsCfg := middleware.DefaultCORSConfig(cfg.AllowedOrigins...)
+
 	// Middleware setup
 	handler := http.Handler(mux)
+	handler = middleware.CORS(corsCfg)(handler)
 	handler = middleware.Recover(handler)
 	handler = header.SetRequestID(handler)
 	// handler = middleware.Logging(handler)
