@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/devsubhamdas/go-rest-api-advanced/internal/platform/config"
+	"github.com/devsubhamdas/go-rest-api-advanced/internal/platform/logger"
 	"github.com/devsubhamdas/go-rest-api-advanced/internal/platform/middleware"
 	"github.com/devsubhamdas/go-rest-api-advanced/internal/platform/middleware/header"
 	"github.com/devsubhamdas/go-rest-api-advanced/internal/platform/storage"
@@ -32,12 +33,8 @@ func New(cfg *config.Config) (*Application, error) {
 		return nil, err
 	}
 
-	logHandler := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
-		AddSource: true,
-		Level:     slog.LevelInfo,
-	})
-
-	logger := slog.New(logHandler)
+	// app logger setup
+	logger := logger.NewJSONLogger(cfg)
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /api/healthz", func(w http.ResponseWriter, r *http.Request) {

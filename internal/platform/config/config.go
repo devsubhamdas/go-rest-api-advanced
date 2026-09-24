@@ -8,8 +8,8 @@ import (
 )
 
 type Config struct {
-	Env  string `env:"ENV" env-required:"true"`
-	Port string `env:"PORT" env-required:"true"`
+	AppEnv string `env:"APP_ENV" env-required:"true"`
+	Port   string `env:"PORT" env-required:"true"`
 
 	DBHost     string `env:"DB_HOST" env-required:"true"`
 	DBPort     string `env:"DB_PORT" env-required:"true"`
