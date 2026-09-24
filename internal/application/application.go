@@ -21,10 +21,11 @@ import (
 )
 
 type Application struct {
-	cfg    *config.Config
-	server *http.Server
-	db     *gorm.DB
-	Logger *slog.Logger
+	cfg             *config.Config
+	server          *http.Server
+	db              *gorm.DB
+	Logger          *slog.Logger
+	stopRateLimiter context.CancelFunc
 }
 
 func New(cfg *config.Config) (*Application, error) {
@@ -55,8 +56,13 @@ func New(cfg *config.Config) (*Application, error) {
 	// cors config
 	corsCfg := middleware.DefaultCORSConfig(cfg.AllowedOrigins...)
 
+	// rate limiter setup
+	ctx, cancel := context.WithCancel(context.Background())
+	rateLimiter := middleware.NewRateLimiter(ctx, 5, 10)
+
 	// Middleware setup
 	handler := http.Handler(mux)
+	handler = rateLimiter.Limit(handler)
 	handler = middleware.CORS(corsCfg)(handler)
 	handler = middleware.Recover(handler)
 	handler = header.SetRequestID(handler)
@@ -71,10 +77,11 @@ func New(cfg *config.Config) (*Application, error) {
 	}
 
 	return &Application{
-		cfg:    cfg,
-		server: server,
-		db:     db,
-		Logger: logger,
+		cfg:             cfg,
+		server:          server,
+		db:              db,
+		Logger:          logger,
+		stopRateLimiter: cancel,
 	}, nil
 }
 
