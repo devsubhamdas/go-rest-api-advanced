@@ -122,6 +122,10 @@ func (a *Application) Run() error {
 }
 
 func (a *Application) Close() {
+	// stop rate limiter routinge
+	a.stopRateLimiter()
+
+	// close db connection
 	if err := storage.CloseConnection(a.db); err != nil {
 		a.Logger.Error("application.Close::", slog.String("error", err.Error()))
 	}
