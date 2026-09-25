@@ -15,7 +15,7 @@ type CORSConfig struct {
 	MaxAge           int // seconds
 }
 
-// DefaultCORSConfig is a sane starting point for an Angular frontend.
+// DefaultCORSConfig is a sane starting point for an client/frontend.
 // Override AllowedOrigins from cfg.* for staging/prod domains.
 func DefaultCORSConfig(allowedOrigins ...string) CORSConfig {
 	return CORSConfig{
@@ -49,6 +49,10 @@ func CORS(cfg CORSConfig) func(http.Handler) http.Handler {
 			}
 
 			if r.Method == http.MethodOptions {
+				if origin == "" || !allowed[origin] {
+					w.WriteHeader(http.StatusForbidden)
+					return
+				}
 				w.Header().Set("Access-Control-Allow-Methods", strings.Join(cfg.AllowedMethods, ", "))
 				w.Header().Set("Access-Control-Allow-Headers", strings.Join(cfg.AllowedHeaders, ", "))
 				w.Header().Set("Access-Control-Max-Age", fmt.Sprintf("%d", cfg.MaxAge))
