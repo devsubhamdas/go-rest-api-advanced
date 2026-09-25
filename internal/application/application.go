@@ -56,18 +56,26 @@ func New(cfg *config.Config) (*Application, error) {
 	// cors config
 	corsCfg := middleware.DefaultCORSConfig(cfg.AllowedOrigins...)
 
-	// rate limiter setup
+	// rate limiter setup with canel/stop
 	ctx, cancel := context.WithCancel(context.Background())
 	rateLimiter := middleware.NewRateLimiter(ctx, 5, 10)
 
-	// Middleware setup
+	// Middleware setup - order matters: outer most runs first on the way in,
+	// last on the way out
 	handler := http.Handler(mux)
-	handler = middleware.SecurityHeaders(handler)
-	handler = rateLimiter.Limit(handler)
-	handler = middleware.CORS(corsCfg)(handler)
-	handler = middleware.Recover(handler)
-	handler = header.SetRequestID(handler)
-	// handler = middleware.Logging(handler)
+
+	chain := []func(http.Handler) http.Handler{
+		middleware.SecurityHeaders,
+		rateLimiter.Limit,
+		middleware.CORS(corsCfg),
+		header.SetRequestID,
+		middleware.Logging,
+		middleware.Recover,
+	}
+
+	for _, mw := range chain {
+		handler = mw(handler)
+	}
 
 	server := &http.Server{
 		Addr:         ":" + cfg.Port,
