@@ -67,7 +67,7 @@ func (i *CreateUserInput) Validate() error {
 	}
 
 	// Validate Name
-	if !isValidName(i.Name) {
+	if i.Name != "" && !isValidName(i.Name) {
 		vErrDetails = append(vErrDetails, errorsx.ValidationErrorDetails{
 			Field: "name",
 			Message: fmt.Sprintf(
@@ -78,7 +78,7 @@ func (i *CreateUserInput) Validate() error {
 	}
 
 	// Validate Email
-	if !isValidEmail(i.Email) {
+	if i.Email != "" && !isValidEmail(i.Email) {
 		vErrDetails = append(vErrDetails, errorsx.ValidationErrorDetails{
 			Field:   "email",
 			Message: errorsx.ErrInvalidEmail.Error(),
@@ -130,7 +130,7 @@ func (i *UpdateUserInput) Validate() error {
 	}
 
 	// Validate Name
-	if !isValidName(i.Name) {
+	if i.Name != "" && !isValidName(i.Name) {
 		vErrDetails = append(vErrDetails, errorsx.ValidationErrorDetails{
 			Field: "name",
 			Message: fmt.Sprintf(
@@ -141,7 +141,7 @@ func (i *UpdateUserInput) Validate() error {
 	}
 
 	// Validate Email
-	if !isValidEmail(i.Email) {
+	if i.Email != "" && !isValidEmail(i.Email) {
 		vErrDetails = append(vErrDetails, errorsx.ValidationErrorDetails{
 			Field:   "email",
 			Message: errorsx.ErrInvalidEmail.Error(),
