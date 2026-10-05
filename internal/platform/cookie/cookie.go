@@ -1,4 +1,4 @@
-package middleware
+package cookie
 
 import (
 	"net/http"
@@ -9,7 +9,7 @@ const sessionCookieName = "session_token"
 
 // SetSessionCookie writes a secure session cookie. Call this from your
 // login handler after issuing a token.
-func SetSessionCookie(w http.ResponseWriter, token string, ttl time.Duration) {
+func SetSessionToken(w http.ResponseWriter, token string, ttl time.Duration) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     sessionCookieName,
 		Value:    token,
@@ -23,7 +23,7 @@ func SetSessionCookie(w http.ResponseWriter, token string, ttl time.Duration) {
 
 // ClearSessionCookie expires the session cookie immediately. Call this
 // from your logout handler.
-func ClearSessionCookie(w http.ResponseWriter) {
+func ClearSessionToken(w http.ResponseWriter) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     sessionCookieName,
 		Value:    "",
