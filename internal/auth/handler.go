@@ -54,7 +54,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 				w,
 				response.CodeUnprocessableEntity,
 				"failed to decode json",
-				[]errorsx.ValidationErrorDetails{
+				[]errorsx.FieldErrorDetails{
 					{
 						Field:   typeErr.Field,
 						Message: "invalid type of value",
@@ -210,7 +210,7 @@ func (h *Handler) Signup(w http.ResponseWriter, r *http.Request) {
 				w,
 				response.CodeUnprocessableEntity,
 				"failed to decode json payload",
-				[]errorsx.ValidationErrorDetails{
+				[]errorsx.FieldErrorDetails{
 					{
 						Field:   typeErr.Field,
 						Message: "invalid type of value",

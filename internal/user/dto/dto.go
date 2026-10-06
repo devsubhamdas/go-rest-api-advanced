@@ -33,13 +33,13 @@ type UserResponseData struct {
 
 // CreateUserInput Validation
 func (i *CreateUserInput) Validate() error {
-	vErrDetails := []errorsx.ValidationErrorDetails{}
+	vErrDetails := []errorsx.FieldErrorDetails{}
 
 	// Empty fields validation
 	if strings.TrimSpace(i.Name) == "" {
 		vErrDetails = append(
 			vErrDetails,
-			errorsx.ValidationErrorDetails{
+			errorsx.FieldErrorDetails{
 				Field:   "name",
 				Message: errorsx.ErrEmptyField.Error(),
 			},
@@ -49,7 +49,7 @@ func (i *CreateUserInput) Validate() error {
 	if strings.TrimSpace(i.Email) == "" {
 		vErrDetails = append(
 			vErrDetails,
-			errorsx.ValidationErrorDetails{
+			errorsx.FieldErrorDetails{
 				Field:   "email",
 				Message: errorsx.ErrEmptyField.Error(),
 			},
@@ -59,7 +59,7 @@ func (i *CreateUserInput) Validate() error {
 	if strings.TrimSpace(i.Password) == "" {
 		vErrDetails = append(
 			vErrDetails,
-			errorsx.ValidationErrorDetails{
+			errorsx.FieldErrorDetails{
 				Field:   "password",
 				Message: errorsx.ErrEmptyField.Error(),
 			},
@@ -68,7 +68,7 @@ func (i *CreateUserInput) Validate() error {
 
 	// Validate Name
 	if i.Name != "" && !isValidName(i.Name) {
-		vErrDetails = append(vErrDetails, errorsx.ValidationErrorDetails{
+		vErrDetails = append(vErrDetails, errorsx.FieldErrorDetails{
 			Field: "name",
 			Message: fmt.Sprintf(
 				"%s: only alphabets with no trailing spaces allowed and no numbers or special characters except '.'",
@@ -79,7 +79,7 @@ func (i *CreateUserInput) Validate() error {
 
 	// Validate Email
 	if i.Email != "" && !isValidEmail(i.Email) {
-		vErrDetails = append(vErrDetails, errorsx.ValidationErrorDetails{
+		vErrDetails = append(vErrDetails, errorsx.FieldErrorDetails{
 			Field:   "email",
 			Message: errorsx.ErrInvalidEmail.Error(),
 		})
@@ -88,7 +88,7 @@ func (i *CreateUserInput) Validate() error {
 	// Validate Password
 	minPwdLen := 4
 	if len(i.Password) < minPwdLen {
-		vErrDetails = append(vErrDetails, errorsx.ValidationErrorDetails{
+		vErrDetails = append(vErrDetails, errorsx.FieldErrorDetails{
 			Field:   "password",
 			Message: fmt.Sprintf("password length must be greater than %d", minPwdLen),
 		})
@@ -106,13 +106,13 @@ func (i *CreateUserInput) Validate() error {
 
 // UpdateUserInput Validation
 func (i *UpdateUserInput) Validate() error {
-	vErrDetails := []errorsx.ValidationErrorDetails{}
+	vErrDetails := []errorsx.FieldErrorDetails{}
 
 	// Empty fields validation
 	if strings.TrimSpace(i.Name) == "" {
 		vErrDetails = append(
 			vErrDetails,
-			errorsx.ValidationErrorDetails{
+			errorsx.FieldErrorDetails{
 				Field:   "name",
 				Message: errorsx.ErrEmptyField.Error(),
 			},
@@ -122,7 +122,7 @@ func (i *UpdateUserInput) Validate() error {
 	if strings.TrimSpace(i.Email) == "" {
 		vErrDetails = append(
 			vErrDetails,
-			errorsx.ValidationErrorDetails{
+			errorsx.FieldErrorDetails{
 				Field:   "email",
 				Message: errorsx.ErrEmptyField.Error(),
 			},
@@ -131,7 +131,7 @@ func (i *UpdateUserInput) Validate() error {
 
 	// Validate Name
 	if i.Name != "" && !isValidName(i.Name) {
-		vErrDetails = append(vErrDetails, errorsx.ValidationErrorDetails{
+		vErrDetails = append(vErrDetails, errorsx.FieldErrorDetails{
 			Field: "name",
 			Message: fmt.Sprintf(
 				"%s: only alphabets with no trailing spaces allowed and no numbers or special characters except '.'",
@@ -142,7 +142,7 @@ func (i *UpdateUserInput) Validate() error {
 
 	// Validate Email
 	if i.Email != "" && !isValidEmail(i.Email) {
-		vErrDetails = append(vErrDetails, errorsx.ValidationErrorDetails{
+		vErrDetails = append(vErrDetails, errorsx.FieldErrorDetails{
 			Field:   "email",
 			Message: errorsx.ErrInvalidEmail.Error(),
 		})

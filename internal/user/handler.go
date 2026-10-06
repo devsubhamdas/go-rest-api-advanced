@@ -53,7 +53,7 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 				w,
 				response.CodeUnprocessableEntity,
 				"failed to decode json payload",
-				[]errorsx.ValidationErrorDetails{
+				[]errorsx.FieldErrorDetails{
 					{
 						Field:   typeErr.Field,
 						Message: "invalid type of value",
@@ -144,7 +144,7 @@ func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 				w,
 				response.CodeUnprocessableEntity,
 				"failed to decode json",
-				[]errorsx.ValidationErrorDetails{
+				[]errorsx.FieldErrorDetails{
 					{
 						Field:   typeErr.Field,
 						Message: "invalid type of value",

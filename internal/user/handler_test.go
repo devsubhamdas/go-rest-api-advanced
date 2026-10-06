@@ -131,7 +131,7 @@ func TestHandler_CreateUser(t *testing.T) {
 				m.On("Create", mock.Anything, mock.Anything).Return(nil, &errorsx.ValidationError{
 					Code:    response.CodeBadRequest,
 					Message: "invalid email",
-					Details: []errorsx.ValidationErrorDetails{{Field: "email", Message: "invalid format"}},
+					Details: []errorsx.FieldErrorDetails{{Field: "email", Message: "invalid format"}},
 				})
 			},
 			wantStatus: http.StatusBadRequest,

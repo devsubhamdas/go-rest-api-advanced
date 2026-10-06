@@ -20,15 +20,15 @@ var (
 	ErrUnknown            = errors.New("unknown error")
 )
 
-type ValidationErrorDetails struct {
+type FieldErrorDetails struct {
 	Field   string `json:"field,omitempty"`
 	Message string `json:"message,omitempty"`
 }
 
 type ValidationError struct {
 	Code    response.Code
-	Message string                   `json:"message,omitempty"`
-	Details []ValidationErrorDetails `json:"details,omitempty"`
+	Message string              `json:"message,omitempty"`
+	Details []FieldErrorDetails `json:"details,omitempty"`
 }
 
 func (ve *ValidationError) Error() string {
