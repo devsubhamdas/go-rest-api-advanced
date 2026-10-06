@@ -105,13 +105,13 @@ func TestHandler_CreateUser(t *testing.T) {
 		check      func(t *testing.T, rec *httptest.ResponseRecorder)
 	}{
 		{
-			name:       "malformed json returns 422",
+			name:       "malformed json returns 400",
 			body:       `{"name":`,
-			wantStatus: http.StatusUnprocessableEntity,
+			wantStatus: http.StatusBadRequest,
 			check: func(t *testing.T, rec *httptest.ResponseRecorder) {
 				body := decodeError(t, rec)
 				assert.False(t, body.Success)
-				assert.Equal(t, response.CodeUnprocessableEntity, body.Error.Code)
+				assert.Equal(t, response.CodeBadRequest, body.Error.Code)
 			},
 		},
 		{
@@ -232,10 +232,10 @@ func TestHandler_UpdateUser(t *testing.T) {
 			wantStatus: http.StatusBadRequest,
 		},
 		{
-			name:       "malformed json returns 422",
+			name:       "malformed json returns 400",
 			pathID:     id,
 			body:       `{"name":`,
-			wantStatus: http.StatusUnprocessableEntity,
+			wantStatus: http.StatusBadRequest,
 		},
 		{
 			name:       "wrong json field type returns 422 with field details",
