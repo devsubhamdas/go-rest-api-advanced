@@ -39,9 +39,8 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	var req dto.CreateUserInput
 
-	defer r.Body.Close()
-
 	err := json.NewDecoder(r.Body).Decode(&req)
+	defer r.Body.Close()
 	if err != nil {
 		h.logger.Error(
 			"CreateUser::\n",
@@ -66,14 +65,13 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 		_ = response.WriteErrorFromCode(
 			w,
-			response.CodeUnprocessableEntity,
+			response.CodeBadRequest,
 			"failed to decode json payload",
 		)
 		return
 	}
 
 	user, err := h.svc.Create(r.Context(), &req)
-
 	if err != nil {
 		h.logger.Error(
 			"CreateUser::\n",
@@ -88,7 +86,6 @@ func (h *Handler) CreateUser(w http.ResponseWriter, r *http.Request) {
 				vErr.Error(),
 				vErr.Details,
 			)
-
 			return
 		}
 
@@ -133,9 +130,8 @@ func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	var req dto.UpdateUserInput
 
-	defer r.Body.Close()
-
 	err := json.NewDecoder(r.Body).Decode(&req)
+	defer r.Body.Close()
 	if err != nil {
 		h.logger.Error(
 			"UpdateUser::\n",
@@ -158,25 +154,15 @@ func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if errors.Is(err, errorsx.ErrNotFound) {
-			_ = response.WriteErrorFromCode(
-				w,
-				response.CodeNotFoundError,
-				errorsx.ErrNotFound.Error(),
-			)
-			return
-		}
-
 		_ = response.WriteErrorFromCode(
 			w,
-			response.CodeUnprocessableEntity,
+			response.CodeBadRequest,
 			"failed to decode json payload",
 		)
 		return
 	}
 
 	user, err := h.svc.Update(r.Context(), id, &req)
-
 	if err != nil {
 		h.logger.Error(
 			"UpdateUser::\n",
@@ -190,6 +176,15 @@ func (h *Handler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 				vErr.Code,
 				vErr.Error(),
 				vErr.Details,
+			)
+			return
+		}
+
+		if errors.Is(err, errorsx.ErrNotFound) {
+			_ = response.WriteErrorFromCode(
+				w,
+				response.CodeNotFoundError,
+				errorsx.ErrNotFound.Error(),
 			)
 			return
 		}
@@ -280,7 +275,6 @@ func (h *Handler) GetUserByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	user, err := h.svc.GetByID(r.Context(), id)
-
 	if err != nil {
 		h.logger.Error(
 			"GetUserByID::\n",
@@ -321,7 +315,6 @@ func (h *Handler) GetUsers(w http.ResponseWriter, r *http.Request) {
 	rID := header.GetRequestIDFromContext(r.Context())
 
 	users, err := h.svc.GetMany(r.Context())
-
 	if err != nil {
 		h.logger.Error(
 			"GetUsers::\n",

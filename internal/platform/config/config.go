@@ -1,7 +1,10 @@
 package config
 
 import (
+	"errors"
+	"io/fs"
 	"log"
+	"time"
 
 	"github.com/ilyakaznacheev/cleanenv"
 	"github.com/joho/godotenv"
@@ -22,17 +25,27 @@ type Config struct {
 	// AllowedOrigins is a comma-separated list in the env, e.g.
 	// ALLOWED_ORIGINS=https://yourapp.com,http://localhost:4200
 	AllowedOrigins []string `env:"ALLOWED_ORIGINS" env-separator:","`
+
+	// Auth / JWT
+	JWTIssuer        string        `env:"JWT_ISSUER" env-required:"true"`
+	JWTAccessSecret  string        `env:"JWT_ACCESS_SECRET" env-required:"true"`
+	JWTRefreshSecret string        `env:"JWT_REFRESH_SECRET" env-required:"true"`
+	JWTAccessTTL     time.Duration `env:"JWT_ACCESS_TTL" env-default:"15m"`
+	JWTRefreshTTL    time.Duration `env:"JWT_REFRESH_TTL" env-default:"168h"`
 }
 
 func MustLoad() *Config {
-	if err := godotenv.Load(); err != nil {
-		log.Fatalf("failed to load env file: %v", err)
+	// .env is optional: it is a local-dev confenience. Real env vars wins
+	// and cleanenv below fails if any required variable missing.
+	if err := godotenv.Load(); err != nil && !errors.Is(err, fs.ErrNotExist) {
+		log.Fatalf("failed to parse .env file: %v", err)
+
 	}
 
 	var cfg Config
 
 	if err := cleanenv.ReadEnv(&cfg); err != nil {
-		log.Fatalf("failed to read env file %v", err)
+		log.Fatalf("failed to read .env file %v", err)
 	}
 
 	return &cfg

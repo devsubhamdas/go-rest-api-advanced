@@ -12,11 +12,14 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/devsubhamdas/go-rest-api-advanced/internal/auth"
 	"github.com/devsubhamdas/go-rest-api-advanced/internal/platform/config"
+	"github.com/devsubhamdas/go-rest-api-advanced/internal/platform/cookie"
 	"github.com/devsubhamdas/go-rest-api-advanced/internal/platform/logger"
 	"github.com/devsubhamdas/go-rest-api-advanced/internal/platform/middleware"
 	"github.com/devsubhamdas/go-rest-api-advanced/internal/platform/middleware/header"
 	"github.com/devsubhamdas/go-rest-api-advanced/internal/platform/storage"
+	"github.com/devsubhamdas/go-rest-api-advanced/internal/platform/token"
 	"github.com/devsubhamdas/go-rest-api-advanced/internal/user"
 	"gorm.io/gorm"
 )
@@ -81,6 +84,31 @@ func New(cfg *config.Config) (*Application, error) {
 	userSvc := user.NewService(userRepo)
 	userHandler := user.NewHandler(userSvc, logger)
 	user.RegisterRoutes(mux, userHandler)
+
+	// Auth module
+	tm, err := token.NewManager(&token.Config{
+		Issuer:        cfg.JWTIssuer,
+		AccessSecret:  []byte(cfg.JWTAccessSecret),
+		RefreshSecret: []byte(cfg.JWTRefreshSecret),
+		AccessTTL:     cfg.JWTAccessTTL,
+		RefreshTTL:    cfg.JWTRefreshTTL,
+	})
+	if err != nil {
+		logger.Error("TokenManager::", "error", err)
+	}
+
+	authSvc := auth.NewService(userRepo, userRepo, tm)
+	authHandler := auth.NewHandler(
+		authSvc,
+		&cookie.Config{
+			Path:     "/",
+			HttpOnly: true,
+			Secure:   false,
+			SameSite: http.SameSiteDefaultMode,
+		},
+		logger,
+	)
+	auth.RegisterRoutes(mux, authHandler)
 
 	// cors config
 	corsCfg := middleware.DefaultCORSConfig(cfg.AllowedOrigins...)

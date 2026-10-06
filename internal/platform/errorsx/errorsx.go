@@ -11,9 +11,12 @@ var (
 	ErrInvalidID          = errors.New("invalid id")
 	ErrInvalidEmail       = errors.New("invalid email")
 	ErrInvalidName        = errors.New("invalid name")
+	ErrInvalidPassword    = errors.New("invalid password")
 	ErrEmailAlreadyExists = errors.New("email already exists")
 	ErrDuplicateKey       = errors.New("duplicate key error")
 	ErrNotFound           = errors.New("not found")
+	ErrInvalidToken       = errors.New("invalid jwt token")
+	ErrInvalidCredentials = errors.New("invalid credentials")
 	ErrUnknown            = errors.New("unknown error")
 )
 

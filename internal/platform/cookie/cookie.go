@@ -7,31 +7,36 @@ import (
 
 const sessionCookieName = "session_token"
 
-// SetSessionCookie writes a secure session cookie. Call this from your
+type Config struct {
+	Path     string
+	HttpOnly bool
+	Secure   bool
+	SameSite http.SameSite
+}
+
+// SetSessionToken writes a secure session cookie. Call this from your
 // login handler after issuing a token.
-func SetSessionToken(w http.ResponseWriter, token string, ttl time.Duration) {
+func SetSessionToken(cfg *Config, w http.ResponseWriter, token string, ttl time.Duration) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     sessionCookieName,
 		Value:    token,
-		Path:     "/",
-		HttpOnly: true,                 // blocks JS access — mitigates XSS token theft
-		Secure:   true,                 // HTTPS only; set false only for local http dev
-		SameSite: http.SameSiteLaxMode, // use Strict if you don't need cross-site nav
+		Path:     cfg.Path,
+		HttpOnly: cfg.HttpOnly, // blocks JS access — mitigates XSS token theft
+		Secure:   cfg.Secure,   // HTTPS only; set false only for local http dev
+		SameSite: cfg.SameSite, // use Strict if you don't need cross-site nav
 		MaxAge:   int(ttl.Seconds()),
 	})
 }
 
-// ClearSessionCookie expires the session cookie immediately. Call this
+// ClearSessionToken expires the session cookie immediately. Call this
 // from your logout handler.
-func ClearSessionToken(w http.ResponseWriter) {
+func ClearSessionToken(cfg *Config, w http.ResponseWriter) {
 	http.SetCookie(w, &http.Cookie{
-		Name:     sessionCookieName,
-		Value:    "",
-		Path:     "/",
-		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteLaxMode,
-		MaxAge:   -1, // deletes the cookie
+		Name:   sessionCookieName,
+		Value:  "",
+		Path:   cfg.Path,
+		Secure: cfg.Secure,
+		MaxAge: -1, // deletes the cookie
 	})
 }
 
