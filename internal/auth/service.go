@@ -61,14 +61,14 @@ func (s *service) Login(ctx context.Context, input *dto.LoginUserInput) (*dto.Lo
 	u, err := s.userReader.GetByEmail(ctx, input.Email)
 	if err != nil {
 		if errors.Is(err, errorsx.ErrNotFound) {
-			return nil, errorsx.ErrInvalidCredentials
+			return nil, errorsx.ErrInvalidEmail
 		}
 		return nil, err
 	}
 
 	// compare password with hash
 	if err := hash.CompareWithPassword(input.Password, u.Password); err != nil {
-		return nil, errorsx.ErrInvalidCredentials
+		return nil, errorsx.ErrInvalidPassword
 	}
 
 	// generate jwt token

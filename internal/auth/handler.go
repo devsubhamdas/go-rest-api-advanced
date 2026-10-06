@@ -90,12 +90,28 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if errors.Is(err, errorsx.ErrInvalidCredentials) {
-			_ = response.WriteError(
+		if errors.Is(err, errorsx.ErrInvalidEmail) {
+			_ = response.WriteErrorFromCodeWithDetails(
 				w,
-				http.StatusBadRequest,
-				response.CodeBadRequest,
+				response.CodeInvalidCredentials,
 				errorsx.ErrInvalidCredentials.Error(),
+				errorsx.FieldErrorDetails{
+					Field:   "email",
+					Message: "worng email",
+				},
+			)
+			return
+		}
+
+		if errors.Is(err, errorsx.ErrInvalidPassword) {
+			_ = response.WriteErrorFromCodeWithDetails(
+				w,
+				response.CodeInvalidCredentials,
+				errorsx.ErrInvalidCredentials.Error(),
+				errorsx.FieldErrorDetails{
+					Field:   "password",
+					Message: "worng password",
+				},
 			)
 			return
 		}
