@@ -16,7 +16,7 @@ type Config struct {
 
 // SetSessionToken writes a secure session cookie. Call this from your
 // login handler after issuing a token.
-func SetSessionToken(cfg *Config, w http.ResponseWriter, token string, ttl time.Duration) {
+func SetSessionToken(cfg *Config, w http.ResponseWriter, token string, exp time.Time) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     sessionCookieName,
 		Value:    token,
@@ -24,7 +24,8 @@ func SetSessionToken(cfg *Config, w http.ResponseWriter, token string, ttl time.
 		HttpOnly: cfg.HttpOnly, // blocks JS access — mitigates XSS token theft
 		Secure:   cfg.Secure,   // HTTPS only; set false only for local http dev
 		SameSite: cfg.SameSite, // use Strict if you don't need cross-site nav
-		MaxAge:   int(ttl.Seconds()),
+		Expires:  exp,
+		MaxAge:   int(time.Until(exp).Seconds()),
 	})
 }
 
@@ -32,11 +33,14 @@ func SetSessionToken(cfg *Config, w http.ResponseWriter, token string, ttl time.
 // from your logout handler.
 func ClearSessionToken(cfg *Config, w http.ResponseWriter) {
 	http.SetCookie(w, &http.Cookie{
-		Name:   sessionCookieName,
-		Value:  "",
-		Path:   cfg.Path,
-		Secure: cfg.Secure,
-		MaxAge: -1, // deletes the cookie
+		Name:     sessionCookieName,
+		Value:    "",
+		Path:     cfg.Path,
+		HttpOnly: cfg.HttpOnly,
+		Secure:   cfg.Secure,
+		SameSite: cfg.SameSite,
+		Expires:  time.Unix(0, 0), // fallback for old browser
+		MaxAge:   -1,              // deletes the cookie
 	})
 }
 

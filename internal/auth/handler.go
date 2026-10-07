@@ -6,7 +6,6 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
-	"time"
 
 	"github.com/devsubhamdas/go-rest-api-advanced/internal/auth/dto"
 	"github.com/devsubhamdas/go-rest-api-advanced/internal/platform/cookie"
@@ -72,7 +71,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tokens, err := h.svc.Login(r.Context(), &req)
+	data, err := h.svc.Login(r.Context(), &req)
 	if err != nil {
 		h.logger.Error(
 			"LoginUser::\n",
@@ -128,11 +127,11 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	cookie.SetSessionToken(
 		h.cookieCfg,
 		w,
-		tokens.RefreshToken,
-		time.Duration(tokens.RefreshTokenExp.Second()),
+		data.RefreshToken,
+		data.RefreshTokenExp,
 	)
 
-	_ = response.WriteJSONWithData(w, http.StatusOK, "user login successful", tokens)
+	_ = response.WriteJSONWithData(w, http.StatusOK, "user login successful", data)
 
 }
 
@@ -164,7 +163,7 @@ func (h *Handler) Refresh(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tokens, err := h.svc.Refresh(r.Context(), rt)
+	data, err := h.svc.Refresh(r.Context(), rt)
 	if err != nil {
 
 		if errors.Is(err, errorsx.ErrInvalidToken) {
@@ -199,11 +198,11 @@ func (h *Handler) Refresh(w http.ResponseWriter, r *http.Request) {
 	cookie.SetSessionToken(
 		h.cookieCfg,
 		w,
-		tokens.RefreshToken,
-		time.Duration(tokens.RefreshTokenExp.Second()),
+		data.RefreshToken,
+		data.RefreshTokenExp,
 	)
 
-	_ = response.WriteJSONWithData(w, http.StatusOK, "refresh login successful", tokens)
+	_ = response.WriteJSONWithData(w, http.StatusOK, "refresh login successful", data)
 
 }
 
