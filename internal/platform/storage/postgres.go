@@ -63,6 +63,6 @@ func CloseConnection(db *gorm.DB) error {
 		return fmt.Errorf("CloseConnection:: failed to close database: \n%w", err)
 	}
 
-	slog.Info("database connection closed successfully...")
+	slog.Info("database connection closed...")
 	return nil
 }

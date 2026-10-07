@@ -2,7 +2,6 @@ package application
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -13,6 +12,7 @@ import (
 	"time"
 
 	"github.com/devsubhamdas/go-rest-api-advanced/internal/auth"
+	"github.com/devsubhamdas/go-rest-api-advanced/internal/health"
 	"github.com/devsubhamdas/go-rest-api-advanced/internal/platform/config"
 	"github.com/devsubhamdas/go-rest-api-advanced/internal/platform/cookie"
 	"github.com/devsubhamdas/go-rest-api-advanced/internal/platform/logger"
@@ -38,46 +38,15 @@ func New(cfg *config.Config) (*Application, error) {
 		return nil, err
 	}
 
-	// app logger setup
+	// App logger setup
 	logger := logger.NewJSONLogger(cfg)
 
 	// Mux setup
 	mux := http.NewServeMux()
 
-	// Health endpoints
-	mux.HandleFunc("GET /api/healthz", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"status": "ok"}`))
-	})
-
-	mux.HandleFunc("GET /api/readyz", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-
-		sqlDB, err := db.DB()
-		if err != nil {
-			w.WriteHeader(http.StatusServiceUnavailable)
-			json.NewEncoder(w).Encode(map[string]string{
-				"status": "not_ready",
-				"error":  "failed to initilize db",
-			})
-			return
-		}
-
-		ctx, cancel := context.WithTimeout(r.Context(), 2*time.Second)
-		defer cancel()
-		if err := sqlDB.PingContext(ctx); err != nil {
-			w.WriteHeader(http.StatusServiceUnavailable)
-			json.NewEncoder(w).Encode(map[string]string{
-				"status": "not_ready",
-				"error":  "failed to connect db",
-			})
-			return
-		}
-
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(`{"status": "ready"}`))
-	})
+	// Health check module
+	healthHandler := health.NewHandler(db, logger)
+	health.RegisterRoutes(mux, healthHandler)
 
 	// User module
 	userRepo := user.NewRepository(db)
@@ -85,7 +54,7 @@ func New(cfg *config.Config) (*Application, error) {
 	userHandler := user.NewHandler(userSvc, logger)
 	user.RegisterRoutes(mux, userHandler)
 
-	// Auth module
+	// Auth module & Token Manager config
 	tm, err := token.NewManager(&token.Config{
 		Issuer:        cfg.JWTIssuer,
 		AccessSecret:  []byte(cfg.JWTAccessSecret),
@@ -94,7 +63,7 @@ func New(cfg *config.Config) (*Application, error) {
 		RefreshTTL:    cfg.JWTRefreshTTL,
 	})
 	if err != nil {
-		logger.Error("TokenManager::", "error", err)
+		logger.Error("TokenManager::\n", slog.String("error", err.Error()))
 	}
 
 	authSvc := auth.NewService(userRepo, userRepo, tm)
@@ -110,10 +79,10 @@ func New(cfg *config.Config) (*Application, error) {
 	)
 	auth.RegisterRoutes(mux, authHandler)
 
-	// cors config
+	// CORS config
 	corsCfg := middleware.DefaultCORSConfig(cfg.AllowedOrigins...)
 
-	// rate limiter setup with canel/stop
+	// Rate Limiter setup with canel/stop
 	ctx, cancel := context.WithCancel(context.Background())
 	rateLimiter := middleware.NewRateLimiter(ctx, 5, 10)
 
@@ -182,18 +151,19 @@ func (a *Application) Run() error {
 		return fmt.Errorf("failed to shutdown server: \n%w", err)
 	}
 
-	slog.Info("server shutdown completed!!")
+	slog.Info("http server shutdown completed!!")
 	return nil
 }
 
 func (a *Application) Close() {
-	// stop rate limiter routinge
+	// stop rate limiter routine & clean memory
 	a.stopRateLimiter()
+	slog.Info("rate limiter memory cleaned...")
 
 	// close db connection
 	if err := storage.CloseConnection(a.db); err != nil {
 		a.Logger.Error("application.Close::", slog.String("error", err.Error()))
 	}
 
-	slog.Info("application closed!!")
+	slog.Info("server application closed!!")
 }
