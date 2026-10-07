@@ -66,7 +66,7 @@ func New(cfg *config.Config) (*Application, error) {
 		logger.Error("TokenManager::\n", slog.String("error", err.Error()))
 	}
 
-	authSvc := auth.NewService(userRepo, userRepo, tm)
+	authSvc := auth.NewService(userRepo, tm)
 	authHandler := auth.NewHandler(
 		authSvc,
 		&cookie.Config{

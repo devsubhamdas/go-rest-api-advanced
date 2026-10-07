@@ -27,25 +27,20 @@ type Tokens struct {
 	RefreshExp time.Time
 }
 
-type UserReader interface {
+type UserRepository interface {
 	GetByID(context.Context, uuid.UUID) (*user.User, error)
 	GetByEmail(context.Context, string) (*user.User, error)
-}
-
-type UserWriter interface {
 	Create(context.Context, *user.User) (*user.User, error)
 }
 
 type service struct {
-	userReader   UserReader
-	userWriter   UserWriter
+	users        UserRepository
 	tokenManager TokenManager
 }
 
-func NewService(r UserReader, w UserWriter, tm TokenManager) Service {
+func NewService(ur UserRepository, tm TokenManager) Service {
 	return &service{
-		userReader:   r,
-		userWriter:   w,
+		users:        ur,
 		tokenManager: tm,
 	}
 }
@@ -58,7 +53,7 @@ func (s *service) Login(ctx context.Context, input *dto.LoginUserInput) (*dto.Lo
 		return nil, err
 	}
 
-	u, err := s.userReader.GetByEmail(ctx, input.Email)
+	u, err := s.users.GetByEmail(ctx, input.Email)
 	if err != nil {
 		if errors.Is(err, errorsx.ErrNotFound) {
 			return nil, errorsx.ErrInvalidEmail
@@ -98,7 +93,7 @@ func (s *service) Refresh(ctx context.Context, rt string) (*dto.RefreshResponseD
 	}
 
 	// re-load: fresh name/email, catches deleted users
-	u, err := s.userReader.GetByID(ctx, id)
+	u, err := s.users.GetByID(ctx, id)
 	if err != nil {
 		if errors.Is(err, errorsx.ErrNotFound) {
 			return nil, errorsx.ErrInvalidCredentials
@@ -142,7 +137,7 @@ func (s *service) Singup(ctx context.Context, input *dto.SignupUserInput) (*dto.
 		Password: hashPwd,
 	}
 
-	u, err := s.userWriter.Create(ctx, payload)
+	u, err := s.users.Create(ctx, payload)
 	if err != nil {
 		return nil, err
 	}
