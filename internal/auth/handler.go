@@ -293,5 +293,5 @@ func (h *Handler) Signup(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	cookie.ClearSessionToken(h.cookieCfg, w)
-	_ = response.WriteJSON(w, http.StatusNoContent, "")
+	w.WriteHeader(http.StatusNoContent)
 }
