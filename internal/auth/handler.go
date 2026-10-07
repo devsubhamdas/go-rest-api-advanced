@@ -94,9 +94,11 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 				w,
 				response.CodeInvalidCredentials,
 				errorsx.ErrInvalidCredentials.Error(),
-				errorsx.FieldErrorDetails{
-					Field:   "email",
-					Message: "worng email",
+				[]errorsx.FieldErrorDetails{
+					{
+						Field:   "email",
+						Message: "worng email",
+					},
 				},
 			)
 			return
@@ -107,9 +109,11 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 				w,
 				response.CodeInvalidCredentials,
 				errorsx.ErrInvalidCredentials.Error(),
-				errorsx.FieldErrorDetails{
-					Field:   "password",
-					Message: "worng password",
+				[]errorsx.FieldErrorDetails{
+					{
+						Field:   "password",
+						Message: "worng password",
+					},
 				},
 			)
 			return
