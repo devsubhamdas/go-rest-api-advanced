@@ -41,20 +41,7 @@ func New(cfg *config.Config) (*Application, error) {
 	// App logger setup
 	logger := logger.NewJSONLogger(cfg)
 
-	// Mux setup
-	mux := http.NewServeMux()
-
-	// Health check module
-	healthHandler := health.NewHandler(db, logger)
-	health.RegisterRoutes(mux, healthHandler)
-
-	// User module
-	userRepo := user.NewRepository(db)
-	userSvc := user.NewService(userRepo)
-	userHandler := user.NewHandler(userSvc, logger)
-	user.RegisterRoutes(mux, userHandler)
-
-	// Auth module & Token Manager config
+	// Token Manager config
 	tm, err := token.NewManager(&token.Config{
 		Issuer:        cfg.JWTIssuer,
 		AccessSecret:  []byte(cfg.JWTAccessSecret),
@@ -66,6 +53,22 @@ func New(cfg *config.Config) (*Application, error) {
 		logger.Error("TokenManager::\n", slog.String("error", err.Error()))
 	}
 
+	// Mux setup
+	mux := http.NewServeMux()
+
+	// Health check module
+	healthHandler := health.NewHandler(db, logger)
+	health.RegisterRoutes(mux, healthHandler)
+
+	// User module
+	sv := token.NewAccessTokenValidator(tm)
+	requireAuth := middleware.RequireAuth(sv)
+	userRepo := user.NewRepository(db)
+	userSvc := user.NewService(userRepo)
+	userHandler := user.NewHandler(userSvc, logger)
+	user.RegisterRoutes(mux, userHandler, requireAuth)
+
+	// Auth module
 	authSvc := auth.NewService(userRepo, tm)
 	authHandler := auth.NewHandler(
 		authSvc,

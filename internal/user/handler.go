@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/devsubhamdas/go-rest-api-advanced/internal/platform/errorsx"
+	"github.com/devsubhamdas/go-rest-api-advanced/internal/platform/middleware"
 	"github.com/devsubhamdas/go-rest-api-advanced/internal/platform/middleware/header"
 	"github.com/devsubhamdas/go-rest-api-advanced/internal/platform/response"
 	"github.com/devsubhamdas/go-rest-api-advanced/internal/user/dto"
@@ -331,4 +332,54 @@ func (h *Handler) GetUsers(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = response.WriteJSONWithData(w, http.StatusOK, "", users)
+}
+
+func (h *Handler) GetProfile(w http.ResponseWriter, r *http.Request) {
+	rID := header.GetRequestIDFromContext(r.Context())
+	uID, ok := middleware.GetUserIDFromContext(r.Context())
+
+	if uID == "" || !ok {
+		_ = response.WriteErrorFromCode(
+			w,
+			response.CodeBadRequest,
+			"user id missing",
+		)
+		return
+	}
+
+	user, err := h.svc.GetByID(r.Context(), uID)
+	if err != nil {
+		h.logger.Error(
+			"GetUsers::\n",
+			slog.String("X-Request-ID", rID),
+			slog.String("error", err.Error()),
+		)
+
+		if errors.Is(err, errorsx.ErrInvalidID) {
+			_ = response.WriteErrorFromCode(
+				w,
+				response.CodeBadRequest,
+				"invalid user id",
+			)
+			return
+		}
+
+		if errors.Is(err, errorsx.ErrNotFound) {
+			_ = response.WriteErrorFromCode(
+				w,
+				response.CodeNotFoundError,
+				errorsx.ErrNotFound.Error(),
+			)
+			return
+		}
+
+		_ = response.WriteErrorFromCode(
+			w,
+			response.CodeInternalServerError,
+			"something went wrong",
+		)
+		return
+	}
+
+	response.WriteJSONWithData(w, http.StatusOK, "", user)
 }
