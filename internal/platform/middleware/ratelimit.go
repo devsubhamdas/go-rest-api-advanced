@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/devsubhamdas/go-rest-api-advanced/internal/platform/response"
 	"golang.org/x/time/rate"
 )
 
@@ -81,9 +82,11 @@ func (rl *RateLimiter) Limit(next http.Handler) http.Handler {
 		}
 
 		if !rl.getVisitor(ip).Allow() {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusTooManyRequests)
-			w.Write([]byte(`{"error": "rate limit exceeded"}`))
+			_ = response.WriteErrorFromCode(
+				w,
+				response.CodeTooManyRequests,
+				"rate limit exceeded",
+			)
 			return
 		}
 
